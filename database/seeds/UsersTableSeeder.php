@@ -27,7 +27,7 @@ class UsersTableSeeder extends Seeder
             ],
             [
                 'name' => 'Yareli Elizabeth Gomez',
-                'email' => 'irving.samaniego@mail.com',
+                'email' => 'yare@mail.com',
                 'type' => 'Administrator',
                 'password' => bcrypt('123456'),
             ],
