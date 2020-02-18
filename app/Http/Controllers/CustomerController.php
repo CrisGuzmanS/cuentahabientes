@@ -90,9 +90,24 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Customer $customer)
     {
-        //
+        $customer->accounts()->first()->update([
+            'account_number' => $request->account_number,
+            'balance' => $request->balance,
+        ]);
+
+        $customer->user->update([
+            'email' => $request->email,
+        ]);
+
+        $customer->update([
+            'name' => $request->name,
+            'address' => $request->address,
+            'phone' => $request->phone,
+        ]);
+
+        return redirect()->back();
     }
 
     /**
@@ -103,8 +118,8 @@ class CustomerController extends Controller
      */
     public function destroy(Customer $customer)
     {
-        $customer->accounts()->get()->delete();
-        $customer->user->delete();
+        $customer->accounts()->delete();
+        $customer->user()->delete();
         $customer->delete();
         return redirect()->back();
     }

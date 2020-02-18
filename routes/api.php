@@ -16,3 +16,9 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('customers', 'ApiCustomerController@index');
+Route::post('customers', 'ApiCustomerController@store');
+Route::get('customers/{customer}', 'ApiCustomerController@show');
+Route::put('customers/{customer}', 'ApiCustomerController@update');
+Route::delete('customers/{customer}', 'ApiCustomerController@delete');
