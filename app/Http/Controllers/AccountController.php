@@ -3,11 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Customer;
 use App\Account;
-use App\User;
+use App\Customer;
 
-class CustomerController extends Controller
+class AccountController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,9 +15,9 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customers = Customer::get();
         $accounts = Account::get();
-        return view('customers.index', compact('customers','accounts'));
+        $customers = Customer::get();
+        return view('accounts.index', compact('accounts','customers'));
     }
 
     /**
@@ -39,20 +38,12 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-            'type' => 'Cliente',
-        ]);
 
-        $customer = Customer::create([
-            'user_id' => $user->id,
-            'name' => $request->name,
-            'address' => $request->address,
-            'phone' => $request->phone
+        $account = Account::create([
+            'account_number' => $request->account_number,
+            'balance' => $request->balance
         ]);
+        $account->customers()->attach($request->customers);
         
         return redirect()->back();
     }
@@ -63,9 +54,9 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Customer $customer)
+    public function show($id)
     {
-        return view('customers.show', compact('customer'));
+        //
     }
 
     /**
@@ -86,18 +77,15 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Customer $customer)
+    public function update(Request $request, Account $account)
     {
-        $customer->user->update([
-            'email' => $request->email,
+        $account->update([
+            'account_number' => $request->account_number,
+            'balance' => $request->balance
         ]);
 
-        $customer->update([
-            'name' => $request->name,
-            'address' => $request->address,
-            'phone' => $request->phone,
-        ]);
-
+        $account->customers()->detach();
+        $account->customers()->attach($request->customers);
         return redirect()->back();
     }
 
@@ -107,11 +95,10 @@ class CustomerController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Customer $customer)
+    public function destroy(Account $account)
     {
-        $customer->accounts()->delete();
-        $customer->user()->delete();
-        $customer->delete();
+        $account->customers()->detach();
+        $account->delete();
         return redirect()->back();
     }
 }

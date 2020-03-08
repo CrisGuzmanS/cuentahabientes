@@ -15,7 +15,6 @@ class CreateAccountsTable extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedInteger('customer_id');
             $table->string('account_number')->unique();
             $table->decimal('balance');
             $table->timestamps();

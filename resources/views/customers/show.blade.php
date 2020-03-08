@@ -9,24 +9,24 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-12 col-lg-2"></div>
-        <div class="col-12 col-lg-8">
+        @foreach ($customer->accounts as $account)
+        <div class="col-12 col-md-6">
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-12 col-lg-6">
+                        <div class="col-12 mt-2">
                             <label for="" class="text-uppercase text-muted">NÚMERO DE CUENTA</label>
-                            <input type="text" class="form-control" value="{{$customer->accounts()->first()->account_number}}" readonly>
+                            <input type="text" class="form-control" value="{{$account->account_number}}" readonly>
                         </div>
-                        <div class="col-12 col-lg-6">
+                        <div class="col-12 mt-2">
                             <label for="" class="text-uppercase text-muted">SALDO</label>
-                            <input type="text" class="form-control" value="${{$customer->accounts()->first()->balance}}" readonly>
+                            <input type="text" class="form-control" value="${{$account->balance}}" readonly>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-lg-2"></div>
+        @endforeach
     </div>
 </div>
 

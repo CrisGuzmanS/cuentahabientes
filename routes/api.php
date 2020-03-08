@@ -22,3 +22,9 @@ Route::post('customers', 'ApiCustomerController@store');
 Route::get('customers/{customer}', 'ApiCustomerController@show');
 Route::put('customers/{customer}', 'ApiCustomerController@update');
 Route::delete('customers/{customer}', 'ApiCustomerController@delete');
+
+Route::get('accounts', 'ApiAccountController@index');
+Route::post('accounts', 'ApiAccountController@store');
+Route::get('accounts/{account}', 'ApiAccountController@show');
+Route::put('accounts/{account}', 'ApiAccountController@update');
+Route::delete('accounts/{account}', 'ApiAccountController@delete');

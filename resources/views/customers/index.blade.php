@@ -38,13 +38,25 @@
                     </div>
                     <hr>
                     <div class="row">
-                        <div class="col-12 col-lg-6 mt-2">
-                            <label for="" class="text-uppercase text-muted">Número de cuenta</label>
-                            <input customerId="{{$customer->id}}" id="account_number" type="text" value="{{$customer->accounts()->first()->account_number}}" class="form-control" readonly>
-                        </div>
-                        <div class="col-12 col-lg-6 mt-2">
-                            <label for="" class="text-uppercase text-muted">Saldo</label>
-                            <input customerId="{{$customer->id}}" id="balance" type="text" value="${{$customer->accounts()->first()->balance}}" class="form-control" readonly>
+                        <div class="col-12">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>Núm. cuenta</th>
+                                            <th>Saldo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($customer->accounts as $account)
+                                        <tr>
+                                            <td>{{$account->account_number}}</td>
+                                            <td>{{$account->balance}}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -62,7 +74,7 @@
                         <div class="modal-dialog modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">Crear usuario</h5>
+                            <h5 class="modal-title" id="exampleModalLabel">Editar usuario</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -83,14 +95,6 @@
                                         <div class="col-12 col-md-4 mt-2">
                                             <label for="">Teléfono</label>
                                             <input type="number" value="{{$customer->phone}}" class="form-control" name="phone" required>
-                                        </div>
-                                        <div class="col-12 col-md-4 mt-2">
-                                            <label for="">Número de cuenta</label>
-                                            <input type="number" value="{{$customer->accounts()->first()->account_number}}" step="1" minlength="16" name="account_number" class="form-control" required>
-                                        </div>
-                                        <div class="col-12 col-md-4 mt-2">
-                                            <label for="">Saldo</label>
-                                            <input type="number" value="{{$customer->accounts()->first()->balance}}" step="0.1" min="100" value="0.0" name="balance" class="form-control" required>
                                         </div>
                                         <div class="col-12 col-md-4 mt-2">
                                             <label for="">Correo</label>
@@ -139,14 +143,6 @@
                     <div class="col-12 col-md-4 mt-2">
                         <label for="">Teléfono</label>
                         <input type="number" class="form-control" name="phone" required>
-                    </div>
-                    <div class="col-12 col-md-4 mt-2">
-                        <label for="">Número de cuenta</label>
-                        <input type="number" step="1" minlength="16" name="account_number" class="form-control" required>
-                    </div>
-                    <div class="col-12 col-md-4 mt-2">
-                        <label for="">Saldo</label>
-                        <input type="number" step="0.1" min="100" value="0.0" name="balance" class="form-control" required>
                     </div>
                     <div class="col-12 col-md-4 mt-2">
                         <label for="">Correo</label>

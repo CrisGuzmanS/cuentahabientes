@@ -32,16 +32,9 @@ class ApiCustomerController extends Controller
                 'phone' => $request->phone
             ]);
     
-            $account = Account::create([
-                'customer_id' => $customer->id,
-                'account_number' => $request->account_number,
-                'balance' => $request->balance,
-            ]);
-    
             return response()->json([
                 'user' => $user,
                 'customer' => $customer,
-                'account' => $account
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -52,15 +45,11 @@ class ApiCustomerController extends Controller
 
     public function update(Request $request, Customer $customer){
         try {
-            $customer->accounts()->first()->update([
-                'account_number' => $request->account_number,
-                'balance' => $request->balance,
-            ]);
-    
+
             $customer->user->update([
                 'email' => $request->email,
             ]);
-    
+
             $customer->update([
                 'name' => $request->name,
                 'address' => $request->address,
@@ -72,6 +61,7 @@ class ApiCustomerController extends Controller
                 'user' => $customer->user,
                 'account' => $customer->accounts()->first()
             ]);
+
         } catch (\Throwable $th) {
             return response()->json([
                 'message' => $th->getMessage()
@@ -80,7 +70,7 @@ class ApiCustomerController extends Controller
     }
 
     public function delete(Customer $customer){
-        $customer->accounts()->delete();
+        $customer->accounts()->detach();
         $customer->user()->delete();
         $customer->delete();
         return response()->json([
