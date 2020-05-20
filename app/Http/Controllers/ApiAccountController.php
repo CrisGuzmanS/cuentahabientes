@@ -61,4 +61,22 @@ class ApiAccountController extends Controller
             'message' => 'account deleted'
         ]);
     }
+
+    public function showByAccountNumber($account_number){
+
+        $account = Account::where('account_number', $account_number);
+
+        return response()->json([
+            'message' => 'Funciona',
+        ],200);
+
+        if( !is_null($account) ){
+            return response()->json($account,200);
+        }
+
+        return response()->json([
+            'message' => 'Resource not found'
+        ], 403);
+
+    }
 }

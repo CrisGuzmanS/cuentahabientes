@@ -28,3 +28,4 @@ Route::post('accounts', 'ApiAccountController@store');
 Route::get('accounts/{account}', 'ApiAccountController@show');
 Route::put('accounts/{account}', 'ApiAccountController@update');
 Route::delete('accounts/{account}', 'ApiAccountController@delete');
+Route::get('accounts/account_number/{account_number}','ApiAccountController@showByAccountNumber');
