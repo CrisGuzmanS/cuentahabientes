@@ -39,6 +39,7 @@ class ApiTransactionController extends Controller
      */
     public function store(Request $request)
     {
+        return response()->json( $request->input(), 200 );
 
         $originAccount = Account::where('account_number',$request->origin_account_number)->first();
         $destinationAccount = Account::where('account_number',$request->destination_account_number)->first();

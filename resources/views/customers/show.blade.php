@@ -46,6 +46,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    <input name="origin_account_number" accountId="{{$account->id}}" type="hidden" minlength="16" maxlength="16" class="form-control inputOriginAccountNumber" value="{{$account->account_number}}" readonly>
                     <div class="row mt-2">
                         <div class="col-12">
                             <label for="" class="text-muted text-uppercase">Número de cuenta</label>
@@ -73,7 +74,15 @@
 
 <script>
 
-    class Transferencia{
+    class Transfer{
+        constructor( originAccountNumber, destinationAccountNumber, amount ){
+            this.originAccountNumber = originAccountNumber;
+            this.destinationAccountNumber = destinationAccountNumber;
+            this.amount = amount;
+        }
+    }
+
+    class TransferService{
 
         static async accountExists( accountNumber ){
             var accountExists = false;
@@ -89,8 +98,41 @@
             return accountExists;
         }
 
-        static validAmount(){
+        static validAmount(amount, maxAmount){
 
+            if( isNaN(parseFloat(amount)) ){
+                return false;
+            }
+
+            return parseFloat(amount) <= parseFloat(maxAmount); 
+        }
+
+        static async storeOrFail( transfer ){
+
+            transferRequest = JSON.parse( localStorage.getItem('transferRequest') );
+            console.log({
+                transferRequest
+            })
+
+            $.ajax({
+                url: `/api/transactions`,
+                method: "POST",
+                data: { transfer },
+                success: function (result) {
+                    console.log(result);
+                },
+                error: function(error){
+                    console.log(error.responseText);
+                },
+                async: false
+            });
+        }
+
+        static storeRequest( transfer ){
+            localStorage.setItem( 'transferRequest', JSON.stringify({
+                transfer: transfer,
+                attemps: 0
+            }) );
         }
     }
 
@@ -98,9 +140,9 @@
 
         const accountNumber = $(this).val()
 
-        console.log( await Transferencia.accountExists(accountNumber) )
+        console.log( await TransferService.accountExists(accountNumber) )
 
-        if( await Transferencia.accountExists(accountNumber) ){
+        if( await TransferService.accountExists(accountNumber) ){
             $(this)
                 .addClass('is-valid')
                 .removeClass('is-invalid');
@@ -112,15 +154,20 @@
 
     });
 
-    $(document).on('click', '#buttonTransfer', async function(){
-        accountIdselected = $(this).attr('accountId');
+    $(document).on('click', '.buttonTransfer', async function(){
 
-        console.log( accountIdselected )
+        const accountIdselected = $(this).attr('accountId');
+        const amount = $(`.inputAmount[accountId=${accountIdselected}]`).val()
+        const maxAmount = $(`.inputAmount[accountId=${accountIdselected}]`).attr('max')
+        const destinationAccountNumber = $(`.inputAccountNumber[accountId=${accountIdselected}]`).val();
+        const originAccountNumber = $(`.inputOriginAccountNumber[accountId=${accountIdselected}]`).val();
 
-        //const amount = $(`.inputAmount[accountId=${}]`).val();
-        //if( await Transferencia.accountExists() && Transferencia.validAmount() ){
-
-        //}
+        if( await TransferService.accountExists(destinationAccountNumber) && TransferService.validAmount(amount, maxAmount) ){
+            const transfer = new Transfer( originAccountNumber, destinationAccountNumber, amount )
+            TransferService.storeRequest( transfer );
+            TransferService.storeOrFail( transfer );
+            $('.modal').modal('hide');
+        }
     });
 
 </script>
