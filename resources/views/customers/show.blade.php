@@ -63,7 +63,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-primary rounded-0">TRANSFERIR</button>
+            <button type="button" id="buttonTransfer" class="btn btn-primary rounded-0">TRANSFERIR</button>
         </div>
         </div>
     </div>
@@ -85,6 +85,9 @@
                 success: function (result) {
                     console.log(result)
                 },
+                error: function (error){
+                    console.error(error)
+                },
                 async: false
             });
 
@@ -92,7 +95,13 @@
     }
 
     $(document).on('keyup', '#inputAccountNumber', function(){
-        console.log( Transferencia.accountExists() )
+
+        if(Transferencia.accountExists()){
+            // Hacer el input color verde representando que existe la cuenta
+        }else{
+            // Hacer el input color rojo representando que no existe la cuenta
+        }
+
     });
 
 </script>

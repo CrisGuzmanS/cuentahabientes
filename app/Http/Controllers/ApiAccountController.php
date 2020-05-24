@@ -64,14 +64,12 @@ class ApiAccountController extends Controller
 
     public function showByAccountNumber($account_number){
 
-        $account = Account::where('account_number', $account_number);
-
-        return response()->json([
-            'message' => 'Funciona',
-        ],200);
+        $account = Account::where('account_number', $account_number)->first();
 
         if( !is_null($account) ){
-            return response()->json($account,200);
+            return response()->json([
+                'message' => 'Resource found'
+            ],200);
         }
 
         return response()->json([
