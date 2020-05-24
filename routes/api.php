@@ -31,3 +31,4 @@ Route::delete('accounts/{account}', 'ApiAccountController@delete');
 Route::get('accounts/account_number/{account_number}','ApiAccountController@showByAccountNumber');
 
 Route::post('transactions','ApiTransactionController@store');
+Route::get('transactions','ApiTransactionController@index');

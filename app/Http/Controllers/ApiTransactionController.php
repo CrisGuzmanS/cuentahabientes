@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Transaction;
+use App\Account;
+use App\Customer;
+use App\User;
+use Illuminate\Support\Facades\Auth;
 
 class ApiTransactionController extends Controller
 {
@@ -14,7 +18,7 @@ class ApiTransactionController extends Controller
      */
     public function index()
     {
-        //
+        return response()->json( Transaction::get(), 200 );
     }
 
     /**
@@ -36,11 +40,21 @@ class ApiTransactionController extends Controller
     public function store(Request $request)
     {
 
-        $originAccount = Account::where()->first();
+        $originAccount = Account::where('account_number',$request->origin_account_number)->first();
+        $destinationAccount = Account::where('account_number',$request->destination_account_number)->first();
+        $customer = Customer::find( $request->customer_id );
 
-        
+        $transaction = Transaction::create([
+            'origin_account_id' => $originAccount->id,
+            'destination_account_id' => $destinationAccount->id,
+            'customer_id' => $customer->id,
+            'amount' => $request->amount
+        ]);
 
-        return response()->json( $request->input(), 200);
+        $originAccount->decrement('balance', $transaction->amount);
+        $destinationAccount->increment('balance', $transaction->amount);
+
+        return response()->json( $transaction, 200);
     }
 
     /**
