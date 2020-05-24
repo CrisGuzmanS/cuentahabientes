@@ -72,7 +72,21 @@
     </div>
 </div>
 
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
+    // =========
+    // FUNCTIONS
+    // =========
+
+    function sleep(ms) {
+        var start = new Date().getTime(), expire = start + ms;
+        while (new Date().getTime() < expire) { }
+        return;
+    }
+
+    // =======
+    // CLASSES
+    // =======
 
     class Transfer{
         constructor( originAccountNumber, destinationAccountNumber, amount ){
@@ -109,20 +123,36 @@
 
         static async storeOrFail( transfer ){
 
-            transferRequest = JSON.parse( localStorage.getItem('transferRequest') );
-            console.log({
-                transferRequest
-            })
+            const transferRequest = JSON.parse( localStorage.getItem('transferRequest') );
 
-            $.ajax({
+
+            await $.ajax({
                 url: `/api/transactions`,
                 method: "POST",
+                tryCount: 0,
+                retryLimit: 5,
                 data: { transfer },
                 success: function (result) {
-                    console.log(result);
+                    swal(
+                        "¡Tu transacción ha sido procesada con éxito!",
+                        "¡Felicidades",
+                        "success"
+                    );
                 },
                 error: function(error){
-                    console.log(error.responseText);
+                    this.tryCount++;
+                    if (this.tryCount <= this.retryLimit-1) {
+                        console.log(this.tryCount)
+                        sleep(1000);
+                        $.ajax(this);
+                        return;
+                    }
+                    swal(
+                        "Ah ocurrido un error en nuestros servidores.",
+                        "Tu transacción no ha sido procesada.",
+                        "error"
+                        );
+                    return;
                 },
                 async: false
             });
@@ -162,12 +192,12 @@
         const destinationAccountNumber = $(`.inputAccountNumber[accountId=${accountIdselected}]`).val();
         const originAccountNumber = $(`.inputOriginAccountNumber[accountId=${accountIdselected}]`).val();
 
-        if( await TransferService.accountExists(destinationAccountNumber) && TransferService.validAmount(amount, maxAmount) ){
+        //if( await TransferService.accountExists(destinationAccountNumber) && TransferService.validAmount(amount, maxAmount) ){
             const transfer = new Transfer( originAccountNumber, destinationAccountNumber, amount )
             TransferService.storeRequest( transfer );
-            TransferService.storeOrFail( transfer );
             $('.modal').modal('hide');
-        }
+            TransferService.storeOrFail( transfer );
+        //}
     });
 
 </script>
