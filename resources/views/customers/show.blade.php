@@ -2,6 +2,8 @@
 
 @section('content')
 
+<input type="hidden" class="form-control" readonly id="inputCustomerId" value="{{Auth::user()->customer->id}}">
+
 <div class="container">
     <div class="row">
         <div class="col-12">
@@ -16,11 +18,11 @@
                     <div class="row">
                         <div class="col-12 mt-2">
                             <label for="" class="text-uppercase text-muted">💳 NÚMERO DE CUENTA</label>
-                            <input type="text" class="form-control" value="{{$account->account_number}}" readonly>
+                            <input type="text" class="form-control inputOriginAccountNumber" accountId="{{$account->id}}" value="{{$account->account_number}}" readonly>
                         </div>
                         <div class="col-12 mt-2">
                             <label for="" class="text-uppercase text-muted">💰 SALDO</label>
-                            <input type="text" class="form-control" value="${{$account->balance}}" readonly>
+                            <input type="text" class="form-control inputOriginAmount" accountId="{{$account->id}}" value="${{$account->balance}}" readonly>
                         </div>
                     </div>
                     <hr>
@@ -89,10 +91,31 @@
     // =======
 
     class Transfer{
-        constructor( originAccountNumber, destinationAccountNumber, amount ){
+        constructor( originAccountNumber, destinationAccountNumber, amount, customerId ){
             this.originAccountNumber = originAccountNumber;
             this.destinationAccountNumber = destinationAccountNumber;
             this.amount = amount;
+            this.customerId = customerId;
+        }
+    }
+
+    class AccountService{
+        static updateAmounts(){
+            $('.inputOriginAccountNumber').each( function(){
+                const accountId = $(this).attr('accountId');
+                
+                $.ajax({
+                    url: `/api/accounts/${accountId}`,
+                    async: false,
+                    success: function(response){
+                        $(`.inputOriginAmount[accountId=${accountId}]`).val(response.account.balance)
+                    },
+                    error: function(error){
+                        console.log(error)
+                    }
+                });
+
+            } );
         }
     }
 
@@ -125,34 +148,36 @@
 
             const transferRequest = JSON.parse( localStorage.getItem('transferRequest') );
 
-
-            await $.ajax({
+            const response = await $.ajax({
                 url: `/api/transactions`,
                 method: "POST",
+                //contentType: 'application/json',
                 tryCount: 0,
                 retryLimit: 5,
-                data: { transfer },
+                data: { 
+                    originAccountNumber: transfer.originAccountNumber,
+                    destinationAccountNumber: transfer.destinationAccountNumber,
+                    amount: transfer.amount,
+                    customerId: transfer.customerId,
+                    },
                 success: function (result) {
-                    swal(
-                        "¡Tu transacción ha sido procesada con éxito!",
-                        "¡Felicidades",
-                        "success"
-                    );
+                    AccountService.updateAmounts();
+                    swal("Tu transacción ha sido realizada con éxito 😊", "¡Sigue con nosotros!", "success");
+                    return true;
                 },
                 error: function(error){
                     this.tryCount++;
                     if (this.tryCount <= this.retryLimit-1) {
-                        console.log(this.tryCount)
+                        console.log({
+                            tryCount: this.tryCount,
+                            error
+                        })
                         sleep(1000);
                         $.ajax(this);
                         return;
                     }
-                    swal(
-                        "Ah ocurrido un error en nuestros servidores.",
-                        "Tu transacción no ha sido procesada.",
-                        "error"
-                        );
-                    return;
+                    swal("Tuvimos problemas con el servidor.", "Inténtalo más tarde o comunicate con soporte técnico. 😥", "error");
+                    return false;
                 },
                 async: false
             });
@@ -169,8 +194,6 @@
     $(document).on('keyup', '.inputAccountNumber', async function(){
 
         const accountNumber = $(this).val()
-
-        console.log( await TransferService.accountExists(accountNumber) )
 
         if( await TransferService.accountExists(accountNumber) ){
             $(this)
@@ -191,9 +214,10 @@
         const maxAmount = $(`.inputAmount[accountId=${accountIdselected}]`).attr('max')
         const destinationAccountNumber = $(`.inputAccountNumber[accountId=${accountIdselected}]`).val();
         const originAccountNumber = $(`.inputOriginAccountNumber[accountId=${accountIdselected}]`).val();
+        const customerId = $('#inputCustomerId').val();
 
         //if( await TransferService.accountExists(destinationAccountNumber) && TransferService.validAmount(amount, maxAmount) ){
-            const transfer = new Transfer( originAccountNumber, destinationAccountNumber, amount )
+            const transfer = new Transfer( originAccountNumber, destinationAccountNumber, amount, customerId )
             TransferService.storeRequest( transfer );
             $('.modal').modal('hide');
             TransferService.storeOrFail( transfer );
